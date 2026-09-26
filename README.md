@@ -15,6 +15,12 @@ Open the local URL printed by Vite. For a production build, run `npm run build`;
 
 Web MIDI is available in Chromium based browsers on secure contexts (localhost is allowed). Connect a USB MIDI keyboard, grant browser permission, and import a `.mid` or `.midi` file. Your library stays in this browser's IndexedDB; no account or server is required.
 
+## Deploy to Netlify
+
+This is a static Vite site. In Netlify, choose **Add new project → Import an existing project**, connect GitHub, and select `Supercoderboi/PIANOPRACTICE`. The included `netlify.toml` sets the build command to `npm run build` and the publish directory to `dist`; `.node-version` selects Node 22. No environment variables are required. After the first deploy, future pushes to the connected branch trigger redeploys.
+
+The app stores imported songs in the current browser's IndexedDB. Netlify hosts the app files, but songs do not sync between devices.
+
 ## Architecture
 
 - `src/midi/parseMidi.ts` adapts Standard MIDI Files into the canonical model. It retains tracks, instrument/channel, tempo and time/key signatures, note timing/velocity, and CC64 sustain events.

@@ -29,19 +29,21 @@ async function scoreSvgToPng(svg: SVGSVGElement, width: number, height: number) 
 }
 
 export async function downloadSheetMusicPdf(song:Song){
- const [{jsPDF}]=await Promise.all([import('jspdf'),import('svg2pdf.js')]);
- const doc=new jsPDF('p','pt','a4');const pageWidth=doc.internal.pageSize.getWidth(),pageHeight=doc.internal.pageSize.getHeight();
- const margin=34,header=52,gapY=10,columns=1,rows=3,cellW=pageWidth-margin*2,cellH=(pageHeight-margin*2-header-gapY*(rows-1))/rows;
- const host=document.createElement('div');host.style.cssText='position:fixed;left:-10000px;top:0;width:510px;height:190px;';document.body.append(host);
+ const {jsPDF}=await import('jspdf');
+ // Landscape with two measures per row and four rows per page keeps systems
+ // readable while reducing page count by more than half for long songs.
+ const doc=new jsPDF('l','pt','a4');const pageWidth=doc.internal.pageSize.getWidth(),pageHeight=doc.internal.pageSize.getHeight();
+ const margin=30,header=45,gapY=4,columns=2,rows=4,cellW=(pageWidth-margin*2-gapY)/columns,cellH=(pageHeight-margin*2-header-gapY*(rows-1))/rows,perPage=columns*rows;
+ const host=document.createElement('div');host.style.cssText='position:fixed;left:-10000px;top:0;width:510px;height:145px;';document.body.append(host);
  try{
   for(let i=0;i<song.measures.length;i++){
-   if(i>0&&i%(columns*rows)===0)doc.addPage();
-   if(i%(columns*rows)===0){doc.setFont('helvetica','bold');doc.setFontSize(17);doc.text(song.title||'Piano Practice',margin,27);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Sheet music · note names included',margin,41);}
-   renderMeasure(host,song,i,510,true);const svg=host.querySelector('svg');if(!svg)continue;
-   const local=i%(columns*rows),col=local%columns,row=Math.floor(local/columns);const x=margin+col*cellW,y=margin+header+row*(cellH+gapY);
+   if(i>0&&i%perPage===0)doc.addPage();
+   if(i%perPage===0){doc.setFont('helvetica','bold');doc.setFontSize(17);doc.text(song.title||'Piano Practice',margin,25);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Sheet music · note names included',margin,38);}
+   renderMeasure(host,song,i,510,true,true);const svg=host.querySelector('svg');if(!svg)continue;
+   const local=i%perPage,col=local%columns,row=Math.floor(local/columns),x=margin+col*(cellW+gapY),y=margin+header+row*(cellH+gapY);
    doc.setFontSize(8);doc.setTextColor(90,90,98);doc.text(`MEASURE ${i+1}`,x,y+8);
-   const score=await scoreSvgToPng(svg,510,190);
-   doc.addImage(score,'PNG',x,y+10,cellW,196);
+   const score=await scoreSvgToPng(svg,510,145);
+   doc.addImage(score,'PNG',x,y+10,cellW,cellH-10);
   }
   const filename=(song.title||'piano-practice').replace(/[\\/:*?"<>|]+/g,'-').trim()||'piano-practice';doc.save(`${filename}.pdf`);
  }finally{host.remove();}

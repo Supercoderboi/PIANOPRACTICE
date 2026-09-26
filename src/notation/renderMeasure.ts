@@ -1,4 +1,6 @@
-import { Accidental, Beam, Formatter, GhostNote, Renderer, Stave, StaveNote, StaveTie, Voice } from 'vexflow';
+// Use VexFlow's bundled music fonts so notation works offline and its glyphs
+// remain available when the SVG is embedded into a PDF.
+import { Accidental, Beam, Formatter, GhostNote, Renderer, Stave, StaveNote, StaveTie, Voice } from 'vexflow/bravura';
 import type { Song, SongNote } from '../model/song';
 import { allNotes, handForNote } from '../model/song';
 import { decomposeTicks } from './rhythm';

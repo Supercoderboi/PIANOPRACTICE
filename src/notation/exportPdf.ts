@@ -1,5 +1,6 @@
 import type { Song } from '../model/song';
 import { renderMeasure } from './renderMeasure';
+import { Bravura } from '../../node_modules/vexflow/build/esm/src/fonts/bravura.js';
 
 /**
  * VexFlow uses music-font glyphs (including noteheads) in its SVG. jsPDF's SVG
@@ -12,6 +13,9 @@ async function scoreSvgToPng(svg: SVGSVGElement, width: number, height: number) 
  const clone=svg.cloneNode(true) as SVGSVGElement;
  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
  clone.setAttribute('width',String(width));clone.setAttribute('height',String(height));
+ const fontStyle=document.createElementNS('http://www.w3.org/2000/svg','style');
+ fontStyle.textContent=`@font-face{font-family:Bravura;src:url("${Bravura}") format("woff2")}`;
+ clone.insertBefore(fontStyle,clone.firstChild);
  const source=new XMLSerializer().serializeToString(clone);
  const image=new Image();
  image.src=URL.createObjectURL(new Blob([source],{type:'image/svg+xml;charset=utf-8'}));
